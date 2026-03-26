@@ -6,12 +6,53 @@ Searches CLI sessions (`~/.claude/projects/`), global history, and Claude Deskto
 
 ## Install
 
+> **Private repo** — you need access granted to `markhammond-covecta/clfind` before installing. Ask Mark for an invite.
+
+### Option 1: uv (recommended)
+
 ```bash
-cp clfind ~/.local/bin/clfind
+uv tool install git+https://github.com/markhammond-covecta/clfind.git
+```
+
+If you don't have uv: `brew install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`
+
+### Option 2: pipx
+
+```bash
+pipx install git+https://github.com/markhammond-covecta/clfind.git
+```
+
+If you don't have pipx: `brew install pipx && pipx ensurepath`
+
+### Option 3: Clone and install
+
+```bash
+git clone https://github.com/markhammond-covecta/clfind.git
+cd clfind
+uv tool install .
+```
+
+### Option 4: Manual (no packaging)
+
+```bash
+git clone https://github.com/markhammond-covecta/clfind.git
+cp clfind/clfind ~/.local/bin/clfind
 chmod +x ~/.local/bin/clfind
 ```
 
-Requires `~/.local/bin` in your `$PATH` and Python 3.
+Requires `~/.local/bin` in your `$PATH`.
+
+### Upgrade
+
+```bash
+uv tool install --force git+https://github.com/markhammond-covecta/clfind.git
+```
+
+## Requirements
+
+- Python 3.9+
+- macOS or Linux
+- [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) installed (for session resume)
 
 ## Usage
 
@@ -44,12 +85,18 @@ clfind --recent 10             # Last 10 sessions across all projects
 
 ## What it searches
 
-- **CLI sessions**: All `.jsonl` conversation files in `~/.claude/projects/`
-- **Session indexes**: `sessions-index.json` files for indexed metadata
-- **Desktop agent sessions**: `audit.jsonl` files from Claude Desktop's local-agent-mode
-- **Deep mode**: Searches inside conversation content (user and assistant messages)
+| Source | Location | Format |
+|--------|----------|--------|
+| CLI sessions | `~/.claude/projects/*/*.jsonl` | Conversation logs |
+| Session indexes | `~/.claude/projects/*/sessions-index.json` | Indexed metadata |
+| Desktop agent sessions | `~/Library/Application Support/Claude/local-agent-mode-sessions/**/audit.jsonl` | Agent audit logs |
+| Deep mode (`--deep`) | Inside all the above | Full message content |
 
 ## Session actions
 
-- **CLI sessions**: Resumes directly with `claude --resume` in the correct project directory
-- **Desktop sessions**: Shows a conversation preview, with options to open the Desktop app or view the raw file
+When you select a session:
+
+- **CLI sessions** — resumes directly with `claude --resume` in the correct project directory
+- **Desktop sessions** — shows a conversation preview in your terminal, with options to:
+  - **[o]pen** the Claude Desktop app (with a search hint)
+  - **[v]iew** the raw session file

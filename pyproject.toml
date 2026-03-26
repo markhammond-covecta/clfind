@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clfind"
+version = "1.0.0"
+description = "Search and resume Claude Code sessions across all projects"
+requires-python = ">=3.9"
+license = "MIT"
+
+[project.scripts]
+clfind = "clfind.cli:main"
