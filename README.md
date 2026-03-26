@@ -6,37 +6,13 @@ Searches CLI sessions (`~/.claude/projects/`), global history, and Claude Deskto
 
 ## Install
 
-> **Private repo** — you need access to `markhammond-covecta/clfind`. Ask Mark for an invite.
-
-### One-liner (recommended)
-
-Requires [GitHub CLI](https://cli.github.com/) (`brew install gh`):
-
 ```bash
-gh repo clone markhammond-covecta/clfind /tmp/clfind && mkdir -p ~/.local/bin && cp /tmp/clfind/clfind ~/.local/bin/clfind && chmod +x ~/.local/bin/clfind && rm -rf /tmp/clfind && echo "Installed! Run: clfind --help"
+git clone https://github.com/markhammond-covecta/clfind.git
+cd clfind
+./install.sh
 ```
 
-If `~/.local/bin` is not in your PATH, add it:
-
-```bash
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
-```
-
-### Alternative: uv / pipx
-
-If you use [uv](https://docs.astral.sh/uv/) or [pipx](https://pypa.github.io/pipx/), these automatically manage PATH for you:
-
-```bash
-uv tool install git+https://github.com/markhammond-covecta/clfind.git
-# or
-pipx install git+https://github.com/markhammond-covecta/clfind.git
-```
-
-### Upgrade
-
-```bash
-gh repo clone markhammond-covecta/clfind /tmp/clfind && cp /tmp/clfind/clfind ~/.local/bin/clfind && rm -rf /tmp/clfind
-```
+To upgrade, `git pull` and run `./install.sh` again.
 
 ## Requirements
 
