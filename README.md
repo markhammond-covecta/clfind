@@ -66,3 +66,24 @@ When you select a session:
 - **Desktop sessions** — shows a conversation preview in your terminal, with options to:
   - **[o]pen** the Claude Desktop app (with a search hint)
   - **[v]iew** the raw session file
+
+## Configuration
+
+### Extra arguments for `claude`
+
+Set `CLFIND_CLAUDE_ARGUMENTS` to pass additional flags when resuming a session:
+
+```bash
+export CLFIND_CLAUDE_ARGUMENTS="--dangerously-skip-permissions"
+```
+
+Add this to your `~/.zshrc` (or `~/.bashrc`) to make it permanent. You can also set it via Claude Code's settings:
+
+```json
+// ~/.claude/settings.json
+{
+  "env": {
+    "CLFIND_CLAUDE_ARGUMENTS": "--dangerously-skip-permissions"
+  }
+}
+```
