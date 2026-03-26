@@ -6,46 +6,36 @@ Searches CLI sessions (`~/.claude/projects/`), global history, and Claude Deskto
 
 ## Install
 
-> **Private repo** — you need access granted to `markhammond-covecta/clfind` before installing. Ask Mark for an invite.
+> **Private repo** — you need access to `markhammond-covecta/clfind`. Ask Mark for an invite.
 
-### Option 1: uv (recommended)
+### One-liner (recommended)
+
+Requires [GitHub CLI](https://cli.github.com/) (`brew install gh`):
+
+```bash
+gh repo clone markhammond-covecta/clfind /tmp/clfind && mkdir -p ~/.local/bin && cp /tmp/clfind/clfind ~/.local/bin/clfind && chmod +x ~/.local/bin/clfind && rm -rf /tmp/clfind && echo "Installed! Run: clfind --help"
+```
+
+If `~/.local/bin` is not in your PATH, add it:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+```
+
+### Alternative: uv / pipx
+
+If you use [uv](https://docs.astral.sh/uv/) or [pipx](https://pypa.github.io/pipx/), these automatically manage PATH for you:
 
 ```bash
 uv tool install git+https://github.com/markhammond-covecta/clfind.git
-```
-
-If you don't have uv: `brew install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`
-
-### Option 2: pipx
-
-```bash
+# or
 pipx install git+https://github.com/markhammond-covecta/clfind.git
 ```
-
-If you don't have pipx: `brew install pipx && pipx ensurepath`
-
-### Option 3: Clone and install
-
-```bash
-git clone https://github.com/markhammond-covecta/clfind.git
-cd clfind
-uv tool install .
-```
-
-### Option 4: Manual (no packaging)
-
-```bash
-git clone https://github.com/markhammond-covecta/clfind.git
-cp clfind/clfind ~/.local/bin/clfind
-chmod +x ~/.local/bin/clfind
-```
-
-Requires `~/.local/bin` in your `$PATH`.
 
 ### Upgrade
 
 ```bash
-uv tool install --force git+https://github.com/markhammond-covecta/clfind.git
+gh repo clone markhammond-covecta/clfind /tmp/clfind && cp /tmp/clfind/clfind ~/.local/bin/clfind && rm -rf /tmp/clfind
 ```
 
 ## Requirements
