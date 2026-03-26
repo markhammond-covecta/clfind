@@ -749,6 +749,9 @@ def resume_session(session: dict):
         os.chdir(project)
 
     cmd = ["claude", "--resume", sid]
+    extra = os.environ.get("CLFIND_CLAUDE_ARGUMENTS", "")
+    if extra:
+        cmd.extend(extra.split())
     os.execvp("claude", cmd)
 
 
