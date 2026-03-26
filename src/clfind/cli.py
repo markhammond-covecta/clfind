@@ -763,9 +763,18 @@ def main():
     recent_mode = "--recent" in args
     list_mode = "--list" in args
 
-    # Remove flags from args
-    keyword_args = [a for a in args if not a.startswith("--")]
-    keyword = " ".join(keyword_args).strip()
+    # Remove flags from args.
+    # Re-quote any arg containing spaces — the shell already stripped the user's
+    # quotes, but a multi-word arg means the user quoted it as a phrase.
+    keyword_parts = []
+    for a in args:
+        if a.startswith("--"):
+            continue
+        if " " in a:
+            keyword_parts.append(f"'{a}'")
+        else:
+            keyword_parts.append(a)
+    keyword = " ".join(keyword_parts).strip()
 
     # --- Collect all sessions ---
     print(f"{DIM}Scanning sessions...{RESET}", end="", flush=True)
