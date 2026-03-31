@@ -7,7 +7,7 @@ Searches CLI sessions (`~/.claude/projects/`), global history, and Claude Deskto
 ## Install
 
 ```bash
-git clone https://github.com/yourusername/clfind.git
+git clone https://github.com/markhammond-covecta/clfind.git
 cd clfind
 ./install.sh
 ```
