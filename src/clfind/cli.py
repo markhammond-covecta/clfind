@@ -48,7 +48,7 @@ RESET = "\033[0m"
 
 
 def decode_project_name(encoded: str) -> str:
-    """Convert '-Users-mark-code-toolhub' back to '/Users/mark/code/toolhub'."""
+    """Convert '-Users-alice-code-myapp' back to '/Users/alice/code/myapp'."""
     return encoded.replace("-", "/", 1).replace("-", "/")
 
 
