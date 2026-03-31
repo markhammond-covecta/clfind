@@ -501,6 +501,37 @@ def match_session(session: dict, query: Query) -> bool:
     return query.matches(searchable)
 
 
+def _read_jsonl_text(jsonl_path: str) -> str:
+    """Read all user/assistant text from a JSONL file into a single string."""
+    parts = []
+    try:
+        with open(jsonl_path, "r", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if entry.get("type", "") not in ("user", "assistant"):
+                    continue
+                msg = entry.get("message", {})
+                content = msg.get("content", "")
+                if isinstance(content, list):
+                    text_parts = [
+                        b.get("text", "")
+                        for b in content
+                        if isinstance(b, dict) and b.get("type") == "text"
+                    ]
+                    content = " ".join(text_parts)
+                if content:
+                    parts.append(content)
+    except (OSError, PermissionError):
+        pass
+    return " ".join(parts)
+
+
 def deep_match_session(session: dict, query: Query) -> list:
     """Deep search inside conversation JSONL for query matches."""
     full_path = session.get("fullPath", "")
@@ -511,7 +542,14 @@ def deep_match_session(session: dict, query: Query) -> list:
     if not terms:
         return []
     pattern = re.compile("|".join(re.escape(t) for t in terms), re.IGNORECASE)
-    return search_jsonl_content(full_path, pattern)
+    snippets = search_jsonl_content(full_path, pattern)
+    if not snippets:
+        return []
+    # Validate the full boolean query against accumulated conversation text
+    all_text = _read_jsonl_text(full_path)
+    if not query.matches(all_text):
+        return []
+    return snippets
 
 
 def sort_by_date(sessions: list) -> list:
@@ -774,7 +812,7 @@ def main():
         if a.startswith("--"):
             continue
         if " " in a:
-            keyword_parts.append(f"'{a}'")
+            keyword_parts.append(f'"{a}"')
         else:
             keyword_parts.append(a)
     keyword = " ".join(keyword_parts).strip()
