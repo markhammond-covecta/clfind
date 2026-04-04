@@ -29,6 +29,19 @@ clfind --recent [N]        Show N most recent sessions (default 20)
 clfind --list              List all sessions grouped by project
 ```
 
+### Date filters
+
+Filter sessions by last modified date. Use standalone or combine with a search query.
+
+```
+clfind --today             Sessions modified today
+clfind --yesterday         Sessions modified yesterday
+clfind --thisweek          Sessions modified this week (Mon-Sun)
+clfind --lastweek          Sessions modified last week
+clfind --thismonth         Sessions modified this month
+clfind --lastmonth         Sessions modified last month
+```
+
 ### Query syntax
 
 ```
@@ -47,6 +60,8 @@ clfind api deploy              # Sessions mentioning both 'api' and 'deploy'
 clfind aws or azure            # Sessions mentioning either
 clfind apple not 'apple pie'   # 'apple' but not the phrase 'apple pie'
 clfind --recent 10             # Last 10 sessions across all projects
+clfind --today                 # All sessions modified today
+clfind api --thisweek          # 'api' sessions from this week
 ```
 
 ## What it searches

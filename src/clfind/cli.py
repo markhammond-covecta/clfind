@@ -7,6 +7,15 @@ Usage:
     clfind --recent [N]        Show N most recent sessions (default 20)
     clfind --list              List all sessions grouped by project
 
+Date filters (combinable with search):
+    clfind --today             Sessions from today
+    clfind --yesterday         Sessions from yesterday
+    clfind --thisweek          Sessions from this week (Mon-Sun)
+    clfind --lastweek          Sessions from last week
+    clfind --thismonth         Sessions from this month
+    clfind --lastmonth         Sessions from last month
+    clfind <query> --thisweek  Search within this week's sessions
+
 Query syntax:
     word                       Matches if 'word' is found
     'exact phrase'             Matches the exact phrase
@@ -26,7 +35,7 @@ import os
 import sys
 import subprocess
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 # --- Configuration ---
@@ -552,6 +561,63 @@ def deep_match_session(session: dict, query: Query) -> list:
     return snippets
 
 
+DATE_FILTERS = ("--today", "--yesterday", "--thisweek", "--lastweek", "--thismonth", "--lastmonth")
+
+
+def date_range_for_filter(flag: str):
+    """Return (start, end) datetimes in UTC for a given date filter flag."""
+    now = datetime.now(tz=timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    if flag == "--today":
+        return today_start, now
+    elif flag == "--yesterday":
+        return today_start - timedelta(days=1), today_start
+    elif flag == "--thisweek":
+        # Monday of this week
+        monday = today_start - timedelta(days=today_start.weekday())
+        return monday, now
+    elif flag == "--lastweek":
+        monday = today_start - timedelta(days=today_start.weekday())
+        return monday - timedelta(weeks=1), monday
+    elif flag == "--thismonth":
+        month_start = today_start.replace(day=1)
+        return month_start, now
+    elif flag == "--lastmonth":
+        month_start = today_start.replace(day=1)
+        if month_start.month == 1:
+            prev_month_start = month_start.replace(year=month_start.year - 1, month=12)
+        else:
+            prev_month_start = month_start.replace(month=month_start.month - 1)
+        return prev_month_start, month_start
+    return None, None
+
+
+def session_modified_dt(s: dict):
+    """Return the session's last modified datetime (UTC), or None."""
+    mod = s.get("modified", "")
+    if not mod:
+        return None
+    try:
+        if isinstance(mod, (int, float)):
+            return datetime.fromtimestamp(mod / 1000, tz=timezone.utc)
+        mod = str(mod).replace("Z", "+00:00")
+        return datetime.fromisoformat(mod)
+    except Exception:
+        return None
+
+
+def filter_sessions_by_date(sessions: dict, flag: str) -> dict:
+    """Filter a sessions dict to only those within the date range for flag."""
+    start, end = date_range_for_filter(flag)
+    if start is None:
+        return sessions
+    return {
+        sid: s for sid, s in sessions.items()
+        if (dt := session_modified_dt(s)) is not None and start <= dt <= end
+    }
+
+
 def sort_by_date(sessions: list) -> list:
     """Sort sessions by modified date, most recent first."""
     def sort_key(s):
@@ -803,6 +869,7 @@ def main():
     deep = "--deep" in args
     recent_mode = "--recent" in args
     list_mode = "--list" in args
+    date_filter = next((a for a in args if a in DATE_FILTERS), None)
 
     # Remove flags from args.
     # Re-quote any arg containing spaces — the shell already stripped the user's
@@ -832,6 +899,12 @@ def main():
     total = len(all_sessions)
     print(f"\r{DIM}Found {total} sessions across {len(set(s.get('projectPath','') for s in all_sessions.values()))} projects.{RESET}")
 
+    # --- Apply date filter ---
+    if date_filter:
+        all_sessions = filter_sessions_by_date(all_sessions, date_filter)
+        label = date_filter.replace("--", "").replace("this", "this ").replace("last", "last ")
+        print(f"{DIM}Filtered to {len(all_sessions)} sessions for {label}.{RESET}")
+
     # --- List mode ---
     if list_mode:
         by_project = {}
@@ -858,6 +931,16 @@ def main():
         if keyword.isdigit():
             n = int(keyword)
         results = sort_by_date(list(all_sessions.values()))[:n]
+        results = display_sessions(results)
+        if results:
+            selected = select_session(results)
+            if selected:
+                resume_session(selected)
+        return
+
+    # --- Date filter without keyword: show all sessions in range ---
+    if date_filter and not keyword:
+        results = sort_by_date(list(all_sessions.values()))
         results = display_sessions(results)
         if results:
             selected = select_session(results)
