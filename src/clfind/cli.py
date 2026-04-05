@@ -4,6 +4,7 @@
 Usage:
     clfind <query>             Search sessions (case-insensitive)
     clfind <query> --deep      Also search conversation content (slower)
+    clfind --resume             Resume the most recent session
     clfind --recent [N]        Show N most recent sessions (default 20)
     clfind --list              List all sessions grouped by project
 
@@ -867,6 +868,7 @@ def main():
         sys.exit(0)
 
     deep = "--deep" in args
+    resume_mode = "--resume" in args
     recent_mode = "--recent" in args
     list_mode = "--list" in args
     date_filter = next((a for a in args if a in DATE_FILTERS), None)
@@ -898,6 +900,21 @@ def main():
 
     total = len(all_sessions)
     print(f"\r{DIM}Found {total} sessions across {len(set(s.get('projectPath','') for s in all_sessions.values()))} projects.{RESET}")
+
+    # --- Resume mode: jump straight into the most recent CLI session ---
+    if resume_mode:
+        cli_sessions = [s for s in all_sessions.values() if s.get("source") != "desktop"]
+        if not cli_sessions:
+            print(f"{RED}No CLI sessions found.{RESET}")
+            sys.exit(1)
+        most_recent = sort_by_date(cli_sessions)[0]
+        prompt = clean_prompt(most_recent.get("name") or most_recent.get("firstPrompt", "(empty)"))
+        prompt = truncate(prompt or "(empty)", 80)
+        project = friendly_project(most_recent.get("projectPath", ""))
+        print(f"{BOLD}Resuming:{RESET} {prompt}")
+        print(f"{DIM}{project}{RESET}")
+        resume_session(most_recent)
+        return
 
     # --- Apply date filter ---
     if date_filter:

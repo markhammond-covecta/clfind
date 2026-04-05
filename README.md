@@ -25,6 +25,7 @@ To upgrade, `git pull` and run `./install.sh` again.
 ```
 clfind <query>             Search sessions (case-insensitive)
 clfind <query> --deep      Also search conversation content (slower)
+clfind --resume             Resume the most recent session
 clfind --recent [N]        Show N most recent sessions (default 20)
 clfind --list              List all sessions grouped by project
 ```
