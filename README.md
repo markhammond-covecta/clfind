@@ -90,7 +90,7 @@ When you select a session:
 Set `CLFIND_CLAUDE_ARGUMENTS` to pass additional flags when resuming a session:
 
 ```bash
-export CLFIND_CLAUDE_ARGUMENTS="--dangerously-skip-permissions"
+export CLFIND_CLAUDE_ARGUMENTS="--verbose"
 ```
 
 Add this to your `~/.zshrc` (or `~/.bashrc`) to make it permanent. You can also set it via Claude Code's settings:
@@ -99,7 +99,7 @@ Add this to your `~/.zshrc` (or `~/.bashrc`) to make it permanent. You can also 
 // ~/.claude/settings.json
 {
   "env": {
-    "CLFIND_CLAUDE_ARGUMENTS": "--dangerously-skip-permissions"
+    "CLFIND_CLAUDE_ARGUMENTS": "--verbose"
   }
 }
 ```
