@@ -145,7 +145,7 @@ def get_first_prompt_from_jsonl(jsonl_path: str) -> tuple:
                     git_branch = entry.get("gitBranch")
 
                 msg_type = entry.get("type", "")
-                if msg_type == "user" and not first_prompt:
+                if msg_type == "user" and not first_prompt and not entry.get("isMeta"):
                     msg = entry.get("message", {})
                     content = msg.get("content", "")
                     if isinstance(content, list):
@@ -156,12 +156,10 @@ def get_first_prompt_from_jsonl(jsonl_path: str) -> tuple:
                             if isinstance(b, dict) and b.get("type") == "text"
                         ]
                         content = " ".join(text_parts)
-                    if content and not content.startswith("<"):
-                        first_prompt = content
+                    cleaned = clean_prompt(content) if content else ""
+                    if cleaned:
+                        first_prompt = cleaned
                         break  # Got what we need
-                    elif content:
-                        first_prompt = content[:200]
-                        break
     except (OSError, PermissionError):
         pass
 
@@ -190,6 +188,8 @@ def search_jsonl_content(jsonl_path: str, keyword_pattern) -> list:
                     continue
                 msg_type = entry.get("type", "")
                 if msg_type not in ("user", "assistant"):
+                    continue
+                if entry.get("isMeta"):
                     continue
                 msg = entry.get("message", {})
                 content = msg.get("content", "")
@@ -526,6 +526,8 @@ def _read_jsonl_text(jsonl_path: str) -> str:
                     continue
                 if entry.get("type", "") not in ("user", "assistant"):
                     continue
+                if entry.get("isMeta"):
+                    continue
                 msg = entry.get("message", {})
                 content = msg.get("content", "")
                 if isinstance(content, list):
@@ -736,6 +738,8 @@ def preview_conversation(session: dict, max_messages: int = 20):
                     continue
                 msg_type = entry.get("type", "")
                 if msg_type not in ("user", "assistant"):
+                    continue
+                if entry.get("isMeta"):
                     continue
                 msg = entry.get("message", {})
                 content = msg.get("content", "")
